@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+    cfsd-example-spline:
+        container_name: cfsd-example-spline
+        image: chalmersfsd/cfsd-example-spline-amd64:v0.0.1
+        depends_on:
+          - video-h264-decoder-amd64
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+          - /tmp:/tmp
+        environment: 
+          - DISPLAY=$DISPLAY
+        ulimits:
+          memlock:
+            soft: 4000000
+            hard: 4000000
+        command: "cfsd-example-spline --cid=253 --name=cam0 \
+                  --width=1344 --height=376 --verbose"
+
+    video-h264-decoder-amd64:
+        container_name: video-h264-decoder-amd64
+        build:
+            context: https://github.com/chalmers-revere/opendlv-video-h264-decoder.git
+            dockerfile: Dockerfile.amd64
+        restart: on-failure
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /tmp:/tmp
+        entrypoint: ""
+        command: "opendlv-video-h264-decoder --cid=253 --name=cam0 --width=1344 --height=376"
+
